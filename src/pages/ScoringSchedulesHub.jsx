@@ -58,10 +58,10 @@ function ScoresTab() {
 
         {/* Action buttons */}
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-zinc-300 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-50">
+          <button title="Not available on this prototype" className="flex items-center gap-2 px-4 py-2 border border-zinc-300 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-50">
             Export as CSV
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]">
+          <button title="Not available on this prototype" className="flex items-center gap-2 px-4 py-2 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]">
             Generate new scores
           </button>
         </div>
@@ -115,6 +115,7 @@ function GenerationCard({ title, description, status, data, error, onGenerate, o
             <p className="text-sm text-zinc-500 mb-4">Generation is in progress. This may take a few minutes.</p>
             <button
               onClick={() => {}}
+              title="Not available on this prototype"
               className="px-4 py-2 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50"
             >
               Check status

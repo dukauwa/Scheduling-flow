@@ -189,7 +189,7 @@ function ValidationStep({ onNext }) {
                     <div className="flex-1">
                       <p className="text-sm text-zinc-800">{err.message}</p>
                       {err.hint && (
-                        <button className="flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 mt-2">
+                        <button title="Not available on this prototype" className="flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 mt-2">
                           {err.hint} <ExternalLinkIcon />
                         </button>
                       )}
@@ -223,7 +223,7 @@ function ValidationStep({ onNext }) {
                     <div className="flex-1">
                       <p className="text-sm text-zinc-800">{w.message}</p>
                       {w.hint && (
-                        <button className="flex items-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700 mt-2">
+                        <button title="Not available on this prototype" className="flex items-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700 mt-2">
                           {w.hint} <ExternalLinkIcon />
                         </button>
                       )}

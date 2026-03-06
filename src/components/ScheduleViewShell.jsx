@@ -15,11 +15,14 @@ const ShellIcons = {
     LifeBuoy: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line><line x1="14.83" y1="9.17" x2="18.36" y2="5.64"></line><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line></svg>
 };
 
+const PROTO_TIP = 'Not available on this prototype';
+
 function NavItem({ icon: Icon, label, isActive, hasSubmenu, onClick }) {
     return (
         <a
             href="#"
             onClick={e => { e.preventDefault(); onClick?.(); }}
+            title={onClick ? undefined : PROTO_TIP}
             className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors relative ${isActive ? 'text-[#522DA6] bg-[#522DA6]/5' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
         >
             {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#522DA6] rounded-r-sm" />}
@@ -35,6 +38,7 @@ function SubNavItem({ label, isActive, onClick }) {
         <a
             href="#"
             onClick={e => { e.preventDefault(); onClick?.(); }}
+            title={onClick ? undefined : PROTO_TIP}
             className={`block px-4 py-2 pl-12 text-xs font-medium transition-colors ${isActive ? 'text-[#522DA6] bg-[#522DA6]/5' : 'text-zinc-500 hover:text-zinc-900'}`}
         >
             {label}
@@ -53,11 +57,11 @@ export default function DashboardShell({ children, navigate }) {
                         <img src="/grip-logo-sidebar.png" alt="Grip" className="h-8" />
                     </div>
 
-                    <button className="w-full flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-100">
+                    <button title={PROTO_TIP} className="w-full flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-100">
                         <span>Grip Expo</span>
                         <ShellIcons.ChevronDown />
                     </button>
-                    <button className="w-full flex items-center justify-between px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                    <button title={PROTO_TIP} className="w-full flex items-center justify-between px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50">
                         <span>Test Event</span>
                         <ShellIcons.ChevronDown />
                     </button>
@@ -110,14 +114,14 @@ export default function DashboardShell({ children, navigate }) {
             <div className="flex-1 ml-64 min-h-screen flex flex-col">
                 {/* Top Header */}
                 <header className="h-16 border-b border-zinc-200 bg-white sticky top-0 z-30 px-6 flex items-center justify-end gap-6">
-                    <button className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                    <button title={PROTO_TIP} className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
                         <ShellIcons.ExternalLink />
                         View Event
                     </button>
-                    <button className="text-zinc-400 hover:text-zinc-600">
+                    <button title={PROTO_TIP} className="text-zinc-400 hover:text-zinc-600">
                         <ShellIcons.LifeBuoy />
                     </button>
-                    <button className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                    <button title={PROTO_TIP} className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
                         <ShellIcons.User />
                         <ShellIcons.ChevronDown />
                     </button>

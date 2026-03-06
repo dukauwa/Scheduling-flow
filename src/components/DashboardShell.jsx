@@ -17,11 +17,14 @@ const Icons = {
   Sliders: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>,
 };
 
+const PROTO_TIP = 'Not available on this prototype';
+
 function NavItem({ icon: Icon, label, isActive, hasSubmenu, onClick }) {
   return (
     <a
       href="#"
       onClick={e => { e.preventDefault(); onClick?.(); }}
+      title={onClick ? undefined : PROTO_TIP}
       className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors relative ${isActive ? 'text-[#522DA6] bg-[#522DA6]/5' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
     >
       {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#522DA6] rounded-r-sm" />}
@@ -37,6 +40,7 @@ function SubNavItem({ label, isActive, onClick }) {
     <a
       href="#"
       onClick={e => { e.preventDefault(); onClick?.(); }}
+      title={onClick ? undefined : PROTO_TIP}
       className={`block px-4 py-2 pl-12 text-xs font-medium transition-colors ${isActive ? 'text-[#522DA6] bg-[#522DA6]/5' : 'text-zinc-500 hover:text-zinc-900'}`}
     >
       {label}
@@ -59,11 +63,11 @@ export default function DashboardShell({ children, navigate, currentPath }) {
           <div className="flex items-center gap-2 px-1">
             <img src="/grip-logo-sidebar.png" alt="Grip" className="h-8" />
           </div>
-          <button className="w-full flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-100">
+          <button title={PROTO_TIP} className="w-full flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-100">
             <span>Grip Expo</span>
             <Icons.ChevronDown />
           </button>
-          <button className="w-full flex items-center justify-between px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+          <button title={PROTO_TIP} className="w-full flex items-center justify-between px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50">
             <span>Test Event</span>
             <Icons.ChevronDown />
           </button>
@@ -120,14 +124,14 @@ export default function DashboardShell({ children, navigate, currentPath }) {
       {/* Main Content */}
       <div className="flex-1 ml-64 min-h-screen flex flex-col">
         <header className="h-16 border-b border-zinc-200 bg-white sticky top-0 z-30 px-6 flex items-center justify-end gap-6">
-          <button className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+          <button title={PROTO_TIP} className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
             <Icons.ExternalLink />
             View Event
           </button>
-          <button className="text-zinc-400 hover:text-zinc-600">
+          <button title={PROTO_TIP} className="text-zinc-400 hover:text-zinc-600">
             <Icons.LifeBuoy />
           </button>
-          <button className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+          <button title={PROTO_TIP} className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
             <Icons.User />
             <Icons.ChevronDown />
           </button>
