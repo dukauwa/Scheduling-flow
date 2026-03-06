@@ -11,11 +11,11 @@ import ScheduleViewPage from './pages/ScheduleViewPage';
 export default function App() {
   const { route, navigate } = useHashRouter();
   const [slotRules, setSlotRules] = useState([
-    { id: 0, type: "day_time", day: "Monday 20 Jan", time: "09:00", priority: 1 },
-    { id: 1, type: "location", location: "Booth A1", day: "All days", timeFrom: "", timeTo: "", priority: 2 },
-    { id: 2, type: "location", location: "Booth A2", day: "All days", timeFrom: "", timeTo: "", priority: 3 },
-    { id: 3, type: "location", location: "Table 2", day: "All days", timeFrom: "", timeTo: "", priority: 4 },
-    { id: 4, type: "location", location: "Public Lounge", day: "All days", timeFrom: "", timeTo: "", priority: 5 },
+    { id: 0, day: "Monday 20 Jan", location: "", timeFrom: "09:00", timeTo: "", priority: 1 },
+    { id: 1, day: "", location: "Booth A1", timeFrom: "", timeTo: "", priority: 2 },
+    { id: 2, day: "", location: "Booth A2", timeFrom: "", timeTo: "", priority: 3 },
+    { id: 3, day: "", location: "Table 2", timeFrom: "", timeTo: "", priority: 4 },
+    { id: 4, day: "", location: "Public Lounge", timeFrom: "", timeTo: "", priority: 5 },
   ]);
   const [generationConfig, setGenerationConfig] = useState(DEFAULT_CONFIG);
   const [generations, setGenerations] = useState(GENERATION_HISTORY);
