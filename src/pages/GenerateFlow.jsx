@@ -379,26 +379,21 @@ function ConfigurationStep({ config, setConfig, onGenerate, onBack, onSlotPriori
           placeholder="All locations (default)"
         />
         {/* Date/Time Range */}
-        <div className="col-span-2 space-y-3">
-          <label className="block text-sm font-medium text-zinc-900">Restrict to date/time range</label>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1">Start date</label>
-              <input type="date" value={config.dateRangeStart} onChange={e => update('dateRangeStart', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1">End date</label>
-              <input type="date" value={config.dateRangeEnd} onChange={e => update('dateRangeEnd', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1">Start time</label>
-              <input type="time" value={config.timeRangeStart} onChange={e => update('timeRangeStart', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1">End time</label>
-              <input type="time" value={config.timeRangeEnd} onChange={e => update('timeRangeEnd', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
-            </div>
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-900 mb-1.5">Restrict to start date</label>
+          <input type="date" value={config.dateRangeStart} onChange={e => update('dateRangeStart', e.target.value)} className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-900 mb-1.5">Restrict to end date</label>
+          <input type="date" value={config.dateRangeEnd} onChange={e => update('dateRangeEnd', e.target.value)} className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-900 mb-1.5">Restrict to start time</label>
+          <input type="time" value={config.timeRangeStart} onChange={e => update('timeRangeStart', e.target.value)} className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-900 mb-1.5">Restrict to end time</label>
+          <input type="time" value={config.timeRangeEnd} onChange={e => update('timeRangeEnd', e.target.value)} className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
         </div>
         </div>
       </div>
@@ -459,7 +454,7 @@ export default function GenerateFlow({ navigate, config, setConfig, slotRules, s
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="h-1 bg-[#522DA6]" />
-      <div className="border-b border-zinc-200 bg-white px-10 py-4 flex items-center justify-between">
+      <div className="sticky top-0 z-40 border-b border-zinc-200 bg-white px-10 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <img src="/Image (Grip).png" alt="Grip" className="h-7" />
           <div>
