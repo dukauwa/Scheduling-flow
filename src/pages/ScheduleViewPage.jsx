@@ -2882,7 +2882,7 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
 
 // ── Individual Generate Modal (Side Panel) ──
 function IndividualGenerateModal({ title, entityType, entityId, events, setEvents, onlyMustMeet, onClose, pById, cById, sharerById }) {
-    const [step, setStep] = useState('validation'); // 'validation' | 'setup' | 'review'
+    const [step, setStep] = useState('validation'); // 'validation' | 'setup'
     // Validation state
     const [validationStatus, setValidationStatus] = useState('running'); // 'running' | 'done'
     const [validationErrors, setValidationErrors] = useState([]);
@@ -2891,19 +2891,18 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
     const [errorsOpen, setErrorsOpen] = useState(true);
     const [warningsOpen, setWarningsOpen] = useState(true);
     // Setup state
-    const [clearSchedule, setClearSchedule] = useState(true);
     const [includeSession, setIncludeSession] = useState(true);
-    const [includeMeeting, setIncludeMeeting] = useState(false);
     const [selectedLocations, setSelectedLocations] = useState([]);
-    const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
+    const [dateRangeStart, setDateRangeStart] = useState('');
+    const [dateRangeEnd, setDateRangeEnd] = useState('');
+    const [timeRangeStart, setTimeRangeStart] = useState('09:00');
+    const [timeRangeEnd, setTimeRangeEnd] = useState('17:00');
 
     const LOCATION_OPTIONS = ['Room A', 'Room B', 'Room C', 'Room D', 'Hall 1', 'Hall 2', 'Hall 3', 'Hall 4', 'Meeting Pods', 'VIP Lounge', 'Conference Room'];
-    const TIMESLOT_OPTIONS = ['09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00'];
 
     const MODAL_STEPS = [
         { id: 'validation', label: 'Validation' },
         { id: 'setup', label: 'Setup' },
-        { id: 'review', label: 'Review' },
     ];
 
     // Auto-run validation on mount
@@ -2915,18 +2914,18 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
             if (roll > 0.7) {
                 setValidationErrors([]);
                 setValidationWarnings([
-                    { id: 'w1', message: 'Profile has limited availability — only 4 open slots remaining', fixLabel: 'Review availability', fixLink: '#' },
-                    { id: 'w2', message: 'No meeting preferences set for this profile. Matches may be lower quality.', fixLabel: 'Edit preferences', fixLink: '#' },
+                    { id: 'w1', message: 'Profile has limited availability — only 4 open slots remaining', hint: 'Check availability in the Profile list.' },
+                    { id: 'w2', message: 'No meeting preferences set for this profile. Matches may be lower quality.', hint: 'Review preferences in the Profile list.' },
                 ]);
             } else if (roll > 0.4) {
                 setValidationErrors([]);
                 setValidationWarnings([]);
             } else {
                 setValidationErrors([
-                    { id: 'e1', message: 'Profile is missing a required exhibitor_id. Please add one before generating.', fixLabel: 'Edit profile', fixLink: '#' },
+                    { id: 'e1', message: 'Profile is missing a required exhibitor_id. Please add one before generating.', hint: 'Go to the Profile list to update this profile.' },
                 ]);
                 setValidationWarnings([
-                    { id: 'w1', message: 'Profile has limited availability — only 4 open slots remaining', fixLabel: 'Review availability', fixLink: '#' },
+                    { id: 'w1', message: 'Profile has limited availability — only 4 open slots remaining', hint: 'Check availability in the Profile list.' },
                 ]);
             }
             setValidationStatus('done');
@@ -2952,6 +2951,13 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
     const hasErrors = errors.length > 0;
     const isClean = !hasErrors && warnings.length === 0;
     const canContinueValidation = validationStatus === 'done' && !hasErrors;
+
+    // Auto-skip to setup when no issues
+    useEffect(() => {
+        if (validationStatus === 'done' && isClean) {
+            setStep('setup');
+        }
+    }, [validationStatus, isClean]);
 
     const handleGenerate = () => {
         // Get participant IDs for this entity
@@ -2998,17 +3004,9 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
 
         setEvents(prev => [...prev, ...newEvents]);
         onClose();
-        toast.success(`Generated ${newEvents.length} new meetings for ${subtitle || 'this entity'}`);
+        toast.info('Meetings will appear shortly \u2014 refresh the page to see an updated schedule');
     };
 
-    // Review config items
-    const reviewItems = [
-        { label: 'Existing schedule', value: clearSchedule ? 'Clear and regenerate' : 'Only fill available slots' },
-        { label: 'Include session attendance', value: includeSession ? 'Yes' : 'No' },
-        { label: 'Include meeting attendance', value: includeMeeting ? 'Yes' : 'No' },
-        { label: 'Locations', value: selectedLocations.length ? selectedLocations.join(', ') : 'All locations' },
-        { label: 'Time slots', value: selectedTimeSlots.length ? selectedTimeSlots.join(', ') : 'All time slots' },
-    ];
 
     return (
         <>
@@ -3082,7 +3080,7 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
                                             <div key={err.id} className="flex items-start gap-2 px-4 py-3 bg-white">
                                                 <div className="flex-1">
                                                     <p className="text-xs text-rose-900">{err.message}</p>
-                                                    <a href={err.fixLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-rose-700 underline mt-1 hover:text-rose-900">{err.fixLabel}</a>
+                                                    {err.hint && <p className="text-xs text-rose-600 mt-1">{err.hint}</p>}
                                                 </div>
                                                 <button onClick={() => setDismissedIds(d => [...d, err.id])} className="text-xs text-rose-400 hover:text-rose-600 shrink-0">Dismiss</button>
                                             </div>
@@ -3108,7 +3106,7 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
                                             <div key={w.id} className="flex items-start gap-2 px-4 py-3 bg-white">
                                                 <div className="flex-1">
                                                     <p className="text-xs text-amber-900">{w.message}</p>
-                                                    <a href={w.fixLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-amber-700 underline mt-1 hover:text-amber-900">{w.fixLabel}</a>
+                                                    {w.hint && <p className="text-xs text-amber-600 mt-1">{w.hint}</p>}
                                                 </div>
                                                 <button onClick={() => setDismissedIds(d => [...d, w.id])} className="text-xs text-amber-400 hover:text-amber-600 shrink-0">Dismiss</button>
                                             </div>
@@ -3128,52 +3126,37 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
                             <p className="text-xs text-zinc-500 mt-0.5">Choose how the schedule should be generated for this {entityType}.</p>
                         </div>
 
-                        {/* Clear schedule */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-zinc-900">How to treat existing schedule?</label>
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input type="radio" checked={clearSchedule} onChange={() => setClearSchedule(true)} className="text-[#522DA6]" />
-                                <span className="text-sm text-zinc-700">Clear and regenerate</span>
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input type="radio" checked={!clearSchedule} onChange={() => setClearSchedule(false)} className="text-[#522DA6]" />
-                                <span className="text-sm text-zinc-700">Only fill available slots</span>
-                            </label>
-                        </div>
-
                         {/* Toggles */}
                         <ModalToggle checked={includeSession} onChange={setIncludeSession} label="Include session attendance" description="Create meetings in time slots occupied by sessions." />
-                        <ModalToggle checked={includeMeeting} onChange={setIncludeMeeting} label="Include meeting attendance" description="Create meetings in time slots occupied by regular meetings." />
 
                         {/* Multi-selects */}
                         <ModalMultiSelect label="Restrict to locations" options={LOCATION_OPTIONS} selected={selectedLocations} onChange={setSelectedLocations} placeholder="All locations" />
-                        <ModalMultiSelect label="Restrict to time slots" options={TIMESLOT_OPTIONS} selected={selectedTimeSlots} onChange={setSelectedTimeSlots} placeholder="All time slots" />
-                    </div>
-                )}
 
-                {/* Step 3: Review */}
-                {step === 'review' && (
-                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-                        <div>
-                            <h3 className="text-sm font-semibold text-zinc-900">Review & confirm</h3>
-                            <p className="text-xs text-zinc-500 mt-0.5">Review your settings before generating.</p>
-                        </div>
-
-                        <div className="bg-white border border-zinc-200 rounded-xl divide-y divide-zinc-100">
-                            {reviewItems.map(item => (
-                                <div key={item.label} className="flex items-center justify-between px-4 py-3">
-                                    <span className="text-xs text-zinc-500">{item.label}</span>
-                                    <span className="text-xs font-medium text-zinc-900 text-right max-w-[200px]">{item.value}</span>
+                        {/* Date/Time Range */}
+                        <div className="space-y-3">
+                            <label className="block text-sm font-medium text-zinc-900">Restrict to date/time range</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs text-zinc-500 mb-1">Start date</label>
+                                    <input type="date" value={dateRangeStart} onChange={e => setDateRangeStart(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
                                 </div>
-                            ))}
-                        </div>
-
-                        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            <span className="text-xs font-medium text-emerald-800">Validation passed{validationWarnings.length > 0 ? ' (warnings acknowledged)' : ''}</span>
+                                <div>
+                                    <label className="block text-xs text-zinc-500 mb-1">End date</label>
+                                    <input type="date" value={dateRangeEnd} onChange={e => setDateRangeEnd(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-zinc-500 mb-1">Start time</label>
+                                    <input type="time" value={timeRangeStart} onChange={e => setTimeRangeStart(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-zinc-500 mb-1">End time</label>
+                                    <input type="time" value={timeRangeEnd} onChange={e => setTimeRangeEnd(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
+
 
                 {/* Footer */}
                 <div className="px-6 py-4 border-t border-zinc-200 flex items-center justify-between">
@@ -3181,7 +3164,6 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
                         onClick={() => {
                             if (step === 'validation') onClose();
                             else if (step === 'setup') setStep('validation');
-                            else if (step === 'review') setStep('setup');
                         }}
                         className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900"
                     >
@@ -3192,7 +3174,7 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
                             <button
                                 onClick={() => { setValidationStatus('running'); setDismissedIds([]); setValidationErrors([]); setValidationWarnings([]); setTimeout(() => {
                                     const roll = Math.random();
-                                    if (roll > 0.7) { setValidationErrors([]); setValidationWarnings([{ id: 'w1', message: 'Profile has limited availability — only 4 open slots remaining', fixLabel: 'Review availability', fixLink: '#' }]); }
+                                    if (roll > 0.7) { setValidationErrors([]); setValidationWarnings([{ id: 'w1', message: 'Profile has limited availability — only 4 open slots remaining', hint: 'Check availability in the Profile list.' }]); }
                                     else { setValidationErrors([]); setValidationWarnings([]); }
                                     setValidationStatus('done');
                                 }, 1200); }}
@@ -3211,11 +3193,6 @@ function IndividualGenerateModal({ title, entityType, entityId, events, setEvent
                             </button>
                         )}
                         {step === 'setup' && (
-                            <button onClick={() => setStep('review')} className="px-5 py-2 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]">
-                                Review
-                            </button>
-                        )}
-                        {step === 'review' && (
                             <button onClick={handleGenerate} className="px-5 py-2 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]">
                                 Generate Schedule
                             </button>

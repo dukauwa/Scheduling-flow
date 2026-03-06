@@ -40,15 +40,13 @@ export const VALIDATION_RESULTS = {
       id: 'e1',
       type: 'error',
       message: 'There are groups in the system which are marked as being a venue & a buyer visit group. Groups cannot be marked as both.',
-      fixLabel: 'Review groups',
-      fixLink: '#',
+      hint: 'Go to Custom Groups to review group settings.',
     },
     {
       id: 'e2',
       type: 'error',
       message: 'Attendee "Marcus Bell" (Grip Id 5554321) has Exclusive Meetings enabled, but doesn\'t have an exhibitor_id. Please add an exhibitor_id for this user.',
-      fixLabel: 'Edit attendee',
-      fixLink: '#',
+      hint: 'Go to the Profile list to update attendee details.',
     },
   ],
   warnings: [
@@ -56,15 +54,13 @@ export const VALIDATION_RESULTS = {
       id: 'w1',
       type: 'warning',
       message: 'Attendees "Emily White", "James Wilson" have maximum meeting limits that are below their minimum meetings target. Please correct these limits and try again.',
-      fixLabel: 'Review limits',
-      fixLink: '#',
+      hint: 'Check meeting limits in the Profile list.',
     },
     {
       id: 'w2',
       type: 'warning',
       message: '4 participants have no meeting preferences set. They will receive lower quality matches.',
-      fixLabel: 'Review preferences',
-      fixLink: '#',
+      hint: 'Review preferences in the Profile list.',
     },
   ],
 };
@@ -114,16 +110,6 @@ export function generateSlots() {
   return slots;
 }
 
-// ── Generation Status Phases ──
-export const STATUS_PHASES = [
-  { id: 'validating', label: 'Validating event data...', duration: 1500 },
-  { id: 'clearing', label: 'Clearing existing schedules...', duration: 1000 },
-  { id: 'scoring', label: 'Calculating match scores...', duration: 2000 },
-  { id: 'generating', label: 'Generating MustMeet meetings...', duration: 3000 },
-  { id: 'optimizing', label: 'Optimizing schedule balance...', duration: 2000 },
-  { id: 'complete', label: 'Generation complete!', duration: 0 },
-];
-
 // ── Config Defaults ──
 export const DEFAULT_CONFIG = {
   clearSchedule: true,
@@ -134,7 +120,10 @@ export const DEFAULT_CONFIG = {
   profiles: [],
   groups: [],
   locations: [],
-  timeSlots: [],
+  dateRangeStart: '',
+  dateRangeEnd: '',
+  timeRangeStart: '09:00',
+  timeRangeEnd: '17:00',
 };
 
 export const PROFILE_OPTIONS = [
@@ -149,8 +138,3 @@ export const LOCATION_OPTIONS = [
   'Hall 1', 'Hall 2', 'Hall 3', 'Hall 4', 'VIP Lounge', 'Meeting Pods', 'Conference Room',
 ];
 
-export const TIMESLOT_OPTIONS = [
-  '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00',
-  '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00',
-  '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
-];

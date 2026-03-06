@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useHashRouter } from './router';
 import { DEFAULT_CONFIG, GENERATION_HISTORY } from './mockData';
 import DashboardShell from './components/DashboardShell';
 import ScoringSchedulesHub from './pages/ScoringSchedulesHub';
 import GenerateFlow from './pages/GenerateFlow';
-import GenerationStatusPage from './pages/GenerationStatusPage';
 import SlotPrioritiesPage from './pages/SlotPrioritiesPage';
 import ScheduleDetailPage from './pages/ScheduleDetailPage';
 import ScheduleViewPage from './pages/ScheduleViewPage';
@@ -21,25 +20,37 @@ export default function App() {
   const [generationConfig, setGenerationConfig] = useState(DEFAULT_CONFIG);
   const [generations, setGenerations] = useState(GENERATION_HISTORY);
   const [lastGeneration, setLastGeneration] = useState(null);
+  const [generationStatus, setGenerationStatus] = useState(null); // null | 'running' | 'complete' | 'failed'
+  const [currentGeneration, setCurrentGeneration] = useState(null);
 
-  const addGeneration = (entry) => {
-    setGenerations(prev => [entry, ...prev]);
-    setLastGeneration(entry);
-  };
+  const startGeneration = useCallback(() => {
+    const entry = {
+      id: `#${String(Math.floor(Math.random() * 90000) + 10000)}`,
+      includedTypes: 'MustMeet',
+      scope: generationConfig.locations?.length ? generationConfig.locations.join(', ') : 'All Slots',
+      itemsGenerated: 312,
+      avgMatchScore: 94,
+      generatedBy: 'Sarah Lee',
+      timeCreated: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      status: 'running',
+    };
+    setCurrentGeneration(entry);
+    setGenerationStatus('running');
+
+    // Simulate completion after ~10s
+    setTimeout(() => {
+      const completedEntry = { ...entry, status: 'complete', timeTaken: '~10s' };
+      setGenerations(prev => [completedEntry, ...prev]);
+      setCurrentGeneration(completedEntry);
+      setGenerationStatus('complete');
+      setLastGeneration(completedEntry);
+    }, 10000);
+  }, [generationConfig]);
 
   const path = route.path;
 
   // Full-page routes (no sidebar shell)
   if (path.startsWith('/generate')) {
-    if (path === '/generate/status') {
-      return (
-        <GenerationStatusPage
-          navigate={navigate}
-          config={generationConfig}
-          onComplete={addGeneration}
-        />
-      );
-    }
     return (
       <GenerateFlow
         navigate={navigate}
@@ -48,6 +59,7 @@ export default function App() {
         slotRules={slotRules}
         setSlotRules={setSlotRules}
         currentStep={path}
+        onStartGeneration={startGeneration}
       />
     );
   }
@@ -77,6 +89,8 @@ export default function App() {
           generations={generations}
           lastGeneration={lastGeneration}
           onDismissBanner={() => setLastGeneration(null)}
+          generationStatus={generationStatus}
+          currentGeneration={currentGeneration}
         />
       )}
     </DashboardShell>

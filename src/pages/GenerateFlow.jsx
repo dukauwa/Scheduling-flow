@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { VALIDATION_RESULTS, DEFAULT_CONFIG, PROFILE_OPTIONS, GROUP_OPTIONS, LOCATION_OPTIONS, TIMESLOT_OPTIONS } from '../mockData';
+import { toast } from 'sonner';
+import { VALIDATION_RESULTS, DEFAULT_CONFIG, PROFILE_OPTIONS, GROUP_OPTIONS, LOCATION_OPTIONS } from '../mockData';
 
 // ── Icons ──
 const ArrowLeft = () => (
@@ -14,9 +15,7 @@ const AlertTriangle = () => (
 const XCircle = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
 );
-const ExternalLink = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-);
+
 const Loader = () => (
   <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#522DA6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 );
@@ -131,6 +130,13 @@ function ValidationStep({ onNext, onBack }) {
   const isClean = !hasErrors && !hasWarnings;
   const canContinue = status === 'done' && !hasErrors;
 
+  // Auto-skip to next step when no issues
+  useEffect(() => {
+    if (status === 'done' && isClean) {
+      onNext();
+    }
+  }, [status, isClean]);
+
   return (
     <>
       {/* Scrollable content area — leave room for the fixed bottom bar */}
@@ -183,9 +189,7 @@ function ValidationStep({ onNext, onBack }) {
                   <div key={err.id} className="flex items-start gap-3 px-5 py-4 bg-white">
                     <div className="flex-1">
                       <p className="text-sm text-rose-900">{err.message}</p>
-                      <a href={err.fixLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-rose-700 underline mt-2 hover:text-rose-900">
-                        {err.fixLabel} <ExternalLink />
-                      </a>
+                      {err.hint && <p className="text-xs text-rose-600 mt-2">{err.hint}</p>}
                     </div>
                     <button onClick={() => setDismissed(d => [...d, err.id])} className="text-xs text-rose-400 hover:text-rose-600 shrink-0">Dismiss</button>
                   </div>
@@ -215,9 +219,7 @@ function ValidationStep({ onNext, onBack }) {
                   <div key={w.id} className="flex items-start gap-3 px-5 py-4 bg-white">
                     <div className="flex-1">
                       <p className="text-sm text-amber-900">{w.message}</p>
-                      <a href={w.fixLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-amber-700 underline mt-2 hover:text-amber-900">
-                        {w.fixLabel} <ExternalLink />
-                      </a>
+                      {w.hint && <p className="text-xs text-amber-600 mt-2">{w.hint}</p>}
                     </div>
                     <button onClick={() => setDismissed(d => [...d, w.id])} className="text-xs text-amber-400 hover:text-amber-600 shrink-0">Dismiss</button>
                   </div>
@@ -262,7 +264,7 @@ function ValidationStep({ onNext, onBack }) {
 // ══════════════════════════════════════════
 // STEP 2: Configuration
 // ══════════════════════════════════════════
-function ConfigurationStep({ config, setConfig, onNext, onBack, onSlotPriorities, slotRuleCount }) {
+function ConfigurationStep({ config, setConfig, onGenerate, onBack, onSlotPriorities, slotRuleCount }) {
   const update = (key, value) => setConfig(prev => ({ ...prev, [key]: value }));
 
   return (
@@ -374,13 +376,28 @@ function ConfigurationStep({ config, setConfig, onNext, onBack, onSlotPriorities
           onChange={v => update('locations', v)}
           placeholder="All locations (default)"
         />
-        <MultiSelect
-          label="Restrict to time slots"
-          options={TIMESLOT_OPTIONS}
-          selected={config.timeSlots}
-          onChange={v => update('timeSlots', v)}
-          placeholder="All time slots (default)"
-        />
+        {/* Date/Time Range */}
+        <div className="col-span-2 space-y-3">
+          <label className="block text-sm font-medium text-zinc-900">Restrict to date/time range</label>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-zinc-500 mb-1">Start date</label>
+              <input type="date" value={config.dateRangeStart} onChange={e => update('dateRangeStart', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-500 mb-1">End date</label>
+              <input type="date" value={config.dateRangeEnd} onChange={e => update('dateRangeEnd', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-500 mb-1">Start time</label>
+              <input type="time" value={config.timeRangeStart} onChange={e => update('timeRangeStart', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-500 mb-1">End time</label>
+              <input type="time" value={config.timeRangeEnd} onChange={e => update('timeRangeEnd', e.target.value)} className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#522DA6]/20 focus:border-[#522DA6]" />
+            </div>
+          </div>
+        </div>
         </div>
       </div>
 
@@ -416,69 +433,8 @@ function ConfigurationStep({ config, setConfig, onNext, onBack, onSlotPriorities
           Back
         </button>
         <button
-          onClick={onNext}
-          className="px-6 py-2.5 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]"
-        >
-          Review & Confirm
-        </button>
-      </div>
-    </>
-  );
-}
-
-// ══════════════════════════════════════════
-// STEP 3: Review & Confirm
-// ══════════════════════════════════════════
-function ReviewConfirmStep({ config, slotRuleCount, onGenerate, onBack }) {
-  const configItems = [
-    { label: 'Existing schedules', value: config.clearSchedule ? 'Replace existing' : 'Only available slots' },
-    { label: 'Schedule balancing', value: config.balancing === 'quality' ? 'Quality first' : 'Balanced distribution' },
-    { label: 'Sharers share meetings', value: config.sharersShareMeetings ? 'Yes' : 'No' },
-    { label: 'Include session attendance', value: config.includeSessionAttendance ? 'Yes' : 'No' },
-    { label: 'Include meeting attendance', value: config.includeMeetingAttendance ? 'Yes' : 'No' },
-    { label: 'Profiles', value: config.profiles.length ? config.profiles.join(', ') : 'All profiles' },
-    { label: 'Groups', value: config.groups.length ? config.groups.join(', ') : 'All groups' },
-    { label: 'Locations', value: config.locations.length ? config.locations.join(', ') : 'All locations' },
-    { label: 'Time slots', value: config.timeSlots.length ? config.timeSlots.join(', ') : 'All time slots' },
-    { label: 'Slot priority rules', value: slotRuleCount > 0 ? `${slotRuleCount} rule${slotRuleCount > 1 ? 's' : ''} configured` : 'None (default priorities)' },
-  ];
-
-  return (
-    <>
-    <div className="space-y-6 pb-24">
-      <div>
-        <h2 className="text-lg font-semibold text-zinc-900">Review & Confirm</h2>
-        <p className="text-sm text-zinc-500 mt-1">
-          Please review your schedule generation settings before starting.
-        </p>
-      </div>
-
-      <div className="bg-white border border-zinc-200 rounded-xl divide-y divide-zinc-100">
-        {configItems.map(item => (
-          <div key={item.label} className="flex items-center justify-between px-5 py-3.5">
-            <span className="text-sm text-zinc-500">{item.label}</span>
-            <span className="text-sm font-medium text-zinc-900">{item.value}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-        <div className="flex items-center gap-2">
-          <CheckCircle />
-          <span className="text-sm font-medium text-emerald-800">Data validation passed (warnings acknowledged)</span>
-        </div>
-      </div>
-
-    </div>
-
-      {/* Fixed bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 px-6 py-4 flex items-center justify-between z-30">
-        <button onClick={onBack} className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
-          Back
-        </button>
-        <button
           onClick={onGenerate}
-          className="px-8 py-3 bg-[#522DA6] text-white rounded-lg text-sm font-semibold hover:bg-[#422389]"
+          className="px-6 py-2.5 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]"
         >
           Generate Schedules
         </button>
@@ -493,10 +449,9 @@ function ReviewConfirmStep({ config, slotRuleCount, onGenerate, onBack }) {
 const STEPS = [
   { id: 'validation', label: 'Validation' },
   { id: 'config', label: 'Setup' },
-  { id: 'review', label: 'Review & Confirm' },
 ];
 
-export default function GenerateFlow({ navigate, config, setConfig, slotRules, setSlotRules, currentStep }) {
+export default function GenerateFlow({ navigate, config, setConfig, slotRules, setSlotRules, currentStep, onStartGeneration }) {
   const [step, setStep] = useState('validation');
 
   const goBack = () => navigate('#/schedules');
@@ -530,18 +485,14 @@ export default function GenerateFlow({ navigate, config, setConfig, slotRules, s
           <ConfigurationStep
             config={config}
             setConfig={setConfig}
-            onNext={() => setStep('review')}
+            onGenerate={() => {
+              onStartGeneration?.();
+              toast.info('Schedule generation has started. You will be notified when complete.');
+              navigate('#/schedules');
+            }}
             onBack={() => setStep('validation')}
             onSlotPriorities={() => navigate('#/slot-priorities')}
             slotRuleCount={slotRules.length}
-          />
-        )}
-        {step === 'review' && (
-          <ReviewConfirmStep
-            config={config}
-            slotRuleCount={slotRules.length}
-            onGenerate={() => navigate('#/generate/status')}
-            onBack={() => setStep('config')}
           />
         )}
       </div>
