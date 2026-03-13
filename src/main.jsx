@@ -6,7 +6,7 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Toaster position="bottom-right" richColors />
+    <Toaster position="top-right" richColors />
     <App />
   </React.StrictMode>
 );
