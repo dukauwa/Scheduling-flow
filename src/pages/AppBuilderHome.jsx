@@ -75,7 +75,7 @@ export default function AppBuilderHome({ navigate, versions = [], appData = {} }
             onClick={() => navigate?.('#/app-builder/new')}
             className="mt-4 px-4 py-2.5 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]"
           >
-            Create first version
+            Create App Build
           </button>
         </div>
       ) : (
