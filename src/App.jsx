@@ -1,12 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { useHashRouter } from './router';
-import { DEFAULT_CONFIG, GENERATION_HISTORY } from './mockData';
+import { DEFAULT_CONFIG, GENERATION_HISTORY, MOCK_APP, MOCK_VERSION_HISTORY } from './mockData';
 import DashboardShell from './components/DashboardShell';
 import ScoringSchedulesHub from './pages/ScoringSchedulesHub';
 import GenerateFlow from './pages/GenerateFlow';
 import SlotPrioritiesPage from './pages/SlotPrioritiesPage';
 import ScheduleDetailPage from './pages/ScheduleDetailPage';
 import ScheduleViewPage from './pages/ScheduleViewPage';
+import AppBuilderFlow from './pages/AppBuilderFlow';
+import AppBuilderHome from './pages/AppBuilderHome';
 
 export default function App() {
   const { route, navigate } = useHashRouter();
@@ -22,6 +24,12 @@ export default function App() {
   const [lastGeneration, setLastGeneration] = useState(null);
   const [generationStatus, setGenerationStatus] = useState(null); // null | 'running' | 'complete' | 'failed'
   const [currentGeneration, setCurrentGeneration] = useState(null);
+  const [versions, setVersions] = useState(MOCK_VERSION_HISTORY);
+  const appData = MOCK_APP;
+
+  const handleVersionCreated = useCallback((newVersion) => {
+    setVersions(prev => [newVersion, ...prev]);
+  }, []);
 
   const startGeneration = useCallback(() => {
     const entry = {
@@ -64,6 +72,11 @@ export default function App() {
     );
   }
 
+  // App Builder flow (full-page, no shell)
+  if (path.startsWith('/app-builder')) {
+    return <AppBuilderFlow navigate={navigate} currentPath={path} versions={versions} appData={appData} onVersionCreated={handleVersionCreated} />;
+  }
+
   // Schedule view page (full grip-scheduling-prototype with MustMeet pre-ticked)
   if (path === '/schedules/view') {
     return <ScheduleViewPage navigate={navigate} />;
@@ -75,24 +88,35 @@ export default function App() {
   }
 
   // Shell-wrapped routes
-  return (
-    <DashboardShell navigate={navigate} currentPath={path}>
-      {path === '/slot-priorities' ? (
+  const renderContent = () => {
+    if (path === '/slot-priorities') {
+      return (
         <SlotPrioritiesPage
           rules={slotRules}
           onRulesChange={setSlotRules}
         />
-      ) : (
+      );
+    }
+    if (path === '/schedules') {
+      return (
         <ScoringSchedulesHub
           navigate={navigate}
-          activeTab={path === '/schedules' ? 'generations' : 'scores'}
+          activeTab="generations"
           generations={generations}
           lastGeneration={lastGeneration}
           onDismissBanner={() => setLastGeneration(null)}
           generationStatus={generationStatus}
           currentGeneration={currentGeneration}
         />
-      )}
+      );
+    }
+    // Default: App Settings home
+    return <AppBuilderHome navigate={navigate} versions={versions} appData={appData} />;
+  };
+
+  return (
+    <DashboardShell navigate={navigate} currentPath={path}>
+      {renderContent()}
     </DashboardShell>
   );
 }

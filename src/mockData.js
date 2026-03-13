@@ -138,3 +138,64 @@ export const LOCATION_OPTIONS = [
   'Hall 1', 'Hall 2', 'Hall 3', 'Hall 4', 'VIP Lounge', 'Meeting Pods', 'Conference Room',
 ];
 
+// ── App Builder Mock Data ──
+
+// Single app identity — set once, never changes
+export const MOCK_APP = {
+  appName: 'Grip Expo',
+  bundleId: 'com.grip.expo2026',
+  packageId: 'com.grip.expo2026',
+  appleTeamId: 'ABC123DEF',
+  appleStoreConnectId: 'ASC-789456',
+};
+
+// Shared config snapshot for version history entries
+const BASE_CONFIG = {
+  appName: 'Grip Expo',
+  bundleId: 'com.grip.expo2026',
+  packageId: 'com.grip.expo2026',
+  appleTeamId: 'ABC123DEF',
+  appleAuthKeyId: 'KEYID1234',
+  appleIssuerId: 'ISSUER-5678-ABCD',
+  appleKeyName: 'Grip Expo Distribution Key',
+  firebaseAppId: '1:1234567890:android:abc123def456',
+  firebaseTestersEmail: 'ilia@grip.events\ndavid@grip.events\nlizzy@grip.events',
+  iosDeployEnabled: true,
+  androidDeployEnabled: true,
+  gameCenterEnabled: false,
+};
+
+// Version history — newest first, each version is immutable
+export const MOCK_VERSION_HISTORY = [
+  {
+    versionNumber: 3,
+    iosVersion: '1.2.0',
+    androidVersion: '1.2.0',
+    iosBuildStatus: 'success',
+    androidBuildStatus: 'success',
+    createdAt: '12 Mar 2026, 14:30',
+    revertedFrom: null,
+    config: { ...BASE_CONFIG },
+  },
+  {
+    versionNumber: 2,
+    iosVersion: '1.1.0',
+    androidVersion: '1.1.0',
+    iosBuildStatus: 'success',
+    androidBuildStatus: 'failed',
+    createdAt: '08 Mar 2026, 11:00',
+    revertedFrom: null,
+    config: { ...BASE_CONFIG, appleKeyName: 'Grip Expo Staging Key', firebaseTestersEmail: 'ilia@grip.events\ndavid@grip.events' },
+  },
+  {
+    versionNumber: 1,
+    iosVersion: '1.0.0',
+    androidVersion: '1.0.0',
+    iosBuildStatus: 'success',
+    androidBuildStatus: 'success',
+    createdAt: '01 Mar 2026, 10:00',
+    revertedFrom: null,
+    config: { ...BASE_CONFIG, appleKeyName: 'Grip Expo Initial Key', firebaseTestersEmail: 'david@grip.events' },
+  },
+];
+

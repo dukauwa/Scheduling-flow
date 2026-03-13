@@ -49,8 +49,9 @@ function SubNavItem({ label, isActive, onClick }) {
 }
 
 export default function DashboardShell({ children, navigate, currentPath }) {
-  const isMustMeetActive = currentPath === '/' || currentPath === '/schedules' || currentPath?.startsWith('/slot-priorities');
-  const isScoring = currentPath === '/' || currentPath === '/schedules';
+  const isAppSettingsActive = currentPath === '/' || currentPath === '/app-settings';
+  const isMustMeetActive = currentPath === '/schedules' || currentPath?.startsWith('/slot-priorities');
+  const isScoring = currentPath === '/schedules';
   const isSlotPriorities = currentPath?.startsWith('/slot-priorities');
   const isNetworkingActive = currentPath?.startsWith('/schedules/view');
   const isNetworkingSchedules = currentPath?.startsWith('/schedules/view');
@@ -85,7 +86,7 @@ export default function DashboardShell({ children, navigate, currentPath }) {
               <SubNavItem
                 label="Scoring & Schedules"
                 isActive={isScoring}
-                onClick={() => navigate?.('#/')}
+                onClick={() => navigate?.('#/schedules')}
               />
               <SubNavItem
                 label="Slot Priorities"
@@ -117,7 +118,17 @@ export default function DashboardShell({ children, navigate, currentPath }) {
           <NavItem icon={Icons.Target} label="Engage" hasSubmenu />
           <NavItem icon={Icons.Users} label="Grip Teams" />
           <NavItem icon={Icons.TrendingUp} label="Insights" />
-          <NavItem icon={Icons.Settings} label="App settings" hasSubmenu />
+          {/* App Settings section - expanded */}
+          <div>
+            <NavItem icon={Icons.Settings} label="App Settings" isActive={isAppSettingsActive} hasSubmenu />
+            <div className="py-1">
+              <SubNavItem
+                label="App Builder"
+                isActive={isAppSettingsActive}
+                onClick={() => navigate?.('#/')}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
