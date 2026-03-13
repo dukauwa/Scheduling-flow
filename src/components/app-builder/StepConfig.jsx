@@ -20,8 +20,6 @@ export default function StepConfig({ onNext, onCancel }) {
   const validate = () => {
     const errors = {};
     if (!state.appName.trim()) errors.appName = 'App name is required';
-    if (!state.iosVersion.trim()) errors.iosVersion = 'iOS version is required';
-    if (!state.androidVersion.trim()) errors.androidVersion = 'Android version is required';
     if (state.iosDeployEnabled) {
       if (!state.bundleId.trim()) errors.bundleId = 'Bundle ID is required for iOS';
       if (!state.appleTeamId.trim()) errors.appleTeamId = 'Apple Team ID is required (needed for file uploads)';
@@ -117,22 +115,18 @@ export default function StepConfig({ onNext, onCancel }) {
             <LockableField
               label="iOS Version"
               value={state.iosVersion}
-              onChange={v => setField('iosVersion', v)}
-              locked={isView}
+              onChange={() => {}}
+              locked
               placeholder="e.g. 1.2.0"
-              error={state.errors.iosVersion}
-              required
-              tooltip="Semantic version for the iOS build (e.g. 1.0.0)"
+              tooltip="Auto-assigned. Patch version increments automatically with each new version."
             />
             <LockableField
               label="Android Version"
               value={state.androidVersion}
-              onChange={v => setField('androidVersion', v)}
-              locked={isView}
+              onChange={() => {}}
+              locked
               placeholder="e.g. 1.2.0"
-              error={state.errors.androidVersion}
-              required
-              tooltip="Semantic version for the Android build (e.g. 1.0.0)"
+              tooltip="Auto-assigned. Patch version increments automatically with each new version."
             />
           </div>
         </div>
