@@ -24,7 +24,7 @@ export default function App() {
   const [lastGeneration, setLastGeneration] = useState(null);
   const [generationStatus, setGenerationStatus] = useState(null); // null | 'running' | 'complete' | 'failed'
   const [currentGeneration, setCurrentGeneration] = useState(null);
-  const [versions, setVersions] = useState(MOCK_VERSION_HISTORY);
+  const [versions, setVersions] = useState([]);
   const appData = MOCK_APP;
 
   const handleVersionCreated = useCallback((newVersion) => {
