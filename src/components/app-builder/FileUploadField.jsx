@@ -53,7 +53,7 @@ export default function FileUploadField({ label, accept, file, onChange, helperT
   const isImage = file && file.type?.startsWith('image/');
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <label className="flex items-center text-sm font-medium text-zinc-900 mb-1.5">
         {label}
         {tooltip && <Tooltip text={tooltip} />}
@@ -65,7 +65,7 @@ export default function FileUploadField({ label, accept, file, onChange, helperT
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          className={`flex flex-col items-center justify-center py-8 px-4 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+          className={`flex flex-col items-center justify-center flex-1 py-8 px-4 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
             dragOver
               ? 'border-[#522DA6] bg-[#522DA6]/5'
               : error
@@ -84,7 +84,7 @@ export default function FileUploadField({ label, accept, file, onChange, helperT
           )}
         </div>
       ) : (
-        <div className="flex items-center gap-4 p-3 border border-zinc-200 rounded-xl bg-zinc-50/50">
+        <div className="flex items-center gap-4 p-3 border border-zinc-200 rounded-xl bg-zinc-50/50 flex-1">
           {previewable && isImage ? (
             showCropPreview ? (
               /* Circle crop preview — shows how icon looks when cropped to circle */
