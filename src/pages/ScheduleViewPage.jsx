@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo, useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { SwapAttendeeModal, EditModal, CreateMeetingModal, MeetingTypeModal, MustMeetModal, Icons } from "../components/ScheduleModals";
+import { SwapAttendeeModal, EditModal, MeetingTypeModal, MeetingBookerSidebar, Icons } from "../components/ScheduleModals";
 import DashboardShell from "../components/ScheduleViewShell";
 import { toast } from "sonner";
 
@@ -1769,6 +1769,7 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
     const [selectedEventId, setSelectedEventId] = useState(null);
     const [activeModal, setActiveModal] = useState(null);
     const [actionsOpen, setActionsOpen] = useState(false); // Fix: Add missing state
+    const [showCreateDropdown, setShowCreateDropdown] = useState(false);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [expandedMemberId, setExpandedMemberId] = useState(null);
@@ -2080,13 +2081,64 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
 
                             <div className="h-6 w-px bg-zinc-200 mx-2" />
 
-                            <button
-                                onClick={() => setActiveModal({ type: 'create_type_select' })}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]"
-                            >
-                                <Icons.PlusCircle />
-                                Create Meeting
-                            </button>
+                            {entityType === 'company' ? (
+                                <button
+                                    disabled
+                                    title="Go to a person or sharer's schedule to create meetings"
+                                    className="flex items-center gap-2 px-4 py-2 bg-zinc-300 text-zinc-500 rounded-lg text-sm font-medium cursor-not-allowed"
+                                >
+                                    <Icons.PlusCircle />
+                                    Create Meeting
+                                </button>
+                            ) : (
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setShowCreateDropdown(prev => !prev)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-[#522DA6] text-white rounded-lg text-sm font-medium hover:bg-[#422389]"
+                                    >
+                                        <Icons.PlusCircle />
+                                        Create Meeting
+                                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
+                                    {showCreateDropdown && (
+                                        <>
+                                            <div className="fixed inset-0 z-40" onClick={() => setShowCreateDropdown(false)} />
+                                            <div className="absolute right-0 mt-2 w-52 bg-white border border-zinc-200 rounded-xl shadow-lg z-50 py-1 animate-in fade-in zoom-in-95 duration-150">
+                                                <button
+                                                    onClick={() => {
+                                                        setShowCreateDropdown(false);
+                                                        setActiveModal({ type: 'create', fixedType: 'oneToOne' });
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-50 flex items-center gap-3"
+                                                >
+                                                    <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center">
+                                                        <Icons.Users />
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-zinc-900">Regular Meeting</div>
+                                                        <div className="text-xs text-zinc-500">Schedule a 1:1 meeting</div>
+                                                    </div>
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowCreateDropdown(false);
+                                                        setActiveModal({ type: 'create', fixedType: 'mustMeet' });
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-50 flex items-center gap-3"
+                                                >
+                                                    <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+                                                        <Icons.Heart />
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-zinc-900">MustMeet</div>
+                                                        <div className="text-xs text-zinc-500">Priority scheduled meeting</div>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     }
                 />
@@ -2711,22 +2763,24 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
                 }
                 {
                     activeModal?.type === 'create' && (
-                        <CreateMeetingModal
-                            date={activeModal.data.date}
-                            time={activeModal.data.time}
-                            fixedType={activeModal.fixedType}
+                        <MeetingBookerSidebar
+                            flowType={
+                                activeModal.fixedType === 'mustMeet'
+                                    ? (activeModal.data?.time ? 'mustmeet-slot' : 'mustmeet-button')
+                                    : (activeModal.data?.time ? 'regular-slot' : 'regular-button')
+                            }
+                            prefilledDate={activeModal.data?.date}
+                            prefilledTime={activeModal.data?.time}
                             organizerType={entityType}
                             organizerId={entityId}
                             organizerEvents={allEvs}
                             allParticipants={PARTICIPANTS}
                             allSharers={SHARERS}
+                            entityType={entityType}
                             onClose={() => setActiveModal(null)}
                             onSave={(newEvent) => {
                                 onEventAction('create', {
                                     ...newEvent,
-                                    // Ensure proper linking based on current view/context if possible, 
-                                    // or rely on modal filling participant info.
-                                    // For now, modal output should suffice for structure
                                 });
                                 setActiveModal(null);
                             }}
@@ -2782,79 +2836,11 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
                         <MeetingTypeModal
                             onClose={() => setActiveModal(null)}
                             onSelect={(type) => {
-                                if (type === 'oneToOne') {
-                                    // Pass through the date/time from the initial click (activeModal.data)
-                                    setActiveModal({
-                                        type: 'create',
-                                        data: activeModal.data || { date: days[0], time: "09:00" },
-                                        fixedType: "oneToOne"
-                                    });
-                                } else {
-                                    // Generate MustMeet Candidates
-                                    const candidates = PARTICIPANTS.slice(0, 8).map(p => ({
-                                        id: p.id,
-                                        companyName: cById[p.companyId]?.name,
-                                        name: p.name,
-                                        role: p.role,
-                                        group: "Suppliers",
-                                        matchScore: Math.floor(Math.random() * 30) + 70, // 70-100
-                                    })).sort((a, b) => b.matchScore - a.matchScore);
-
-                                    // Pass date/time here too if we want MustMeet to respect the slot
-                                    setActiveModal({
-                                        type: 'create_mustmeet_select',
-                                        candidates,
-                                        data: activeModal.data // forward date/time
-                                    });
-                                }
-                            }}
-                        />
-                    )
-                }
-                {
-                    activeModal?.type === 'create_mustmeet_select' && (
-                        <MustMeetModal
-                            candidates={activeModal.candidates}
-                            organizerEvents={allEvs}
-                            onClose={() => setActiveModal(null)}
-                            onConfirm={(candidate) => {
-                                // 1. Try to use the selected slot
-                                const [selStart, selEnd] = candidate.time.split(' - ');
-                                const candidateEvents = eventsFor(events, "participant", candidate.id);
-
-                                const isBusy = candidateEvents.some(e =>
-                                    e.date === candidate.date &&
-                                    e.start < selEnd &&
-                                    e.end > selStart
-                                );
-
-                                let finalSlot = { date: candidate.date, start: selStart, end: selEnd };
-
-                                if (isBusy) {
-                                    // 2. Conflict: Find next available gap
-                                    const gap = findFirstAvailableSlot(events, entityId, candidate.id);
-                                    if (!gap) {
-                                        toast.error("No available slots found for both participants.");
-                                        return;
-                                    }
-                                    finalSlot = gap;
-                                    toast.info(`Selected time unavailable. Moved to ${gap.date} ${gap.start}.`);
-                                }
-
-                                onEventAction('create', {
-                                    kind: "meeting",
-                                    meetingType: "mustMeet",
-                                    date: finalSlot.date,
-                                    start: finalSlot.start,
-                                    end: finalSlot.end,
-                                    venue: "Meeting Pods",
-                                    venueGroup: "Pods",
-                                    participantIds: [entityId, candidate.id], // Organizer + Selected
-                                    score: candidate.matchScore,
-                                    exclusive: true,
-                                    metBefore: false,
+                                setActiveModal({
+                                    type: 'create',
+                                    data: activeModal.data,
+                                    fixedType: type === 'oneToOne' ? 'oneToOne' : 'mustMeet'
                                 });
-                                setActiveModal(null);
                             }}
                         />
                     )
