@@ -120,7 +120,7 @@ export default function DashboardShell({ children, navigate, currentPath }) {
           <NavItem icon={Icons.TrendingUp} label="Insights" />
           {/* App Settings section - expanded */}
           <div>
-            <NavItem icon={Icons.Settings} label="App Settings" isActive={isAppSettingsActive} hasSubmenu />
+            <NavItem icon={Icons.Settings} label="App Settings" isActive={isAppSettingsActive} hasSubmenu onClick={() => navigate?.('#/app-settings')} />
             <div className="py-1">
               <SubNavItem
                 label="App Builder"
