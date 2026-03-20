@@ -208,8 +208,8 @@ function ScheduleGenerationsTab({ navigate, generationStatus, currentGeneration 
 // ── Hub Page ──
 export default function ScoringSchedulesHub({ navigate, activeTab, generations, lastGeneration, onDismissBanner, generationStatus, currentGeneration }) {
   const handleTabClick = (tab) => {
-    if (tab === 'scores') navigate('#/');
-    else navigate('#/schedules');
+    if (tab === 'scores') return; // Do nothing — scores tab is non-navigable
+    navigate('#/schedules');
   };
 
   return (

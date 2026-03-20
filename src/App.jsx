@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useHashRouter } from './router';
 import { DEFAULT_CONFIG, GENERATION_HISTORY, MOCK_APP } from './mockData';
 import DashboardShell from './components/DashboardShell';
@@ -57,6 +57,15 @@ export default function App() {
   }, [generationConfig]);
 
   const path = route.path;
+
+  // Redirect root to meeting schedules page
+  useEffect(() => {
+    if (path === '/') {
+      navigate('#/schedules/view');
+    }
+  }, [path, navigate]);
+
+  if (path === '/') return null;
 
   // Full-page routes (no sidebar shell)
   if (path.startsWith('/generate')) {
