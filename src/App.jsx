@@ -120,8 +120,10 @@ export default function App() {
         />
       );
     }
-    // Default: App Settings home
-    return <AppBuilderHome navigate={navigate} build={build} appData={appData} />;
+    if (path === '/app-settings') {
+      return <AppBuilderHome navigate={navigate} build={build} appData={appData} />;
+    }
+    return null;
   };
 
   return (

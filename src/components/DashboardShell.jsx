@@ -125,7 +125,7 @@ export default function DashboardShell({ children, navigate, currentPath }) {
               <SubNavItem
                 label="App Builder"
                 isActive={isAppSettingsActive}
-                onClick={() => navigate?.('#/')}
+                onClick={() => navigate?.('#/app-settings')}
               />
             </div>
           </div>
