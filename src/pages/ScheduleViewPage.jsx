@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo, useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { SwapAttendeeModal, EditModal, MeetingTypeModal, MeetingBookerSidebar, Icons } from "../components/ScheduleModals";
+import { SwapAttendeeModal, EditModal, MeetingBookerSidebar, Icons } from "../components/ScheduleModals";
 import DashboardShell from "../components/ScheduleViewShell";
 import { toast } from "sonner";
 
@@ -955,7 +955,7 @@ function TimeStreamCalendar({ events, days, selectedEventId, onSelectEvent, onCr
                                     return (
                                         <button
                                             key={`slot-${i}`}
-                                            onClick={() => onCreateEvent(d, minToTime(slotStart))}
+                                            onClick={(e) => onCreateEvent(d, minToTime(slotStart), e)}
                                             className="absolute inset-x-1 z-0 flex items-center justify-center rounded border border-transparent hover:border-dashed hover:border-[#522DA6]/40 hover:bg-zinc-50 text-xs font-medium text-#522DA6 opacity-0 hover:opacity-100 transition-all"
                                             style={{ top: i * (HOUR_HEIGHT / 2), height: HOUR_HEIGHT / 2 }}
                                         >
@@ -1770,6 +1770,7 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
     const [activeModal, setActiveModal] = useState(null);
     const [actionsOpen, setActionsOpen] = useState(false); // Fix: Add missing state
     const [showCreateDropdown, setShowCreateDropdown] = useState(false);
+    const [slotDropdown, setSlotDropdown] = useState(null); // { date, time, x, y }
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [expandedMemberId, setExpandedMemberId] = useState(null);
@@ -2661,7 +2662,10 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
                                 days={days}
                                 selectedEventId={selectedEventId}
                                 onSelectEvent={setSelectedEventId}
-                                onCreateEvent={(date, time) => setActiveModal({ type: 'create_type_select', data: { date, time } })}
+                                onCreateEvent={(date, time, e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setSlotDropdown({ date, time, x: rect.left + rect.width / 2, y: rect.top + rect.height });
+                                }}
                                 noTopRounded={(entityType === "sharer" || entityType === "company")}
                             />
                         ) : (
@@ -2831,20 +2835,37 @@ function DetailPage({ entityType, entityId, onBack, events, onEventAction, setEv
                         </div>
                     )
                 }
-                {
-                    activeModal?.type === 'create_type_select' && (
-                        <MeetingTypeModal
-                            onClose={() => setActiveModal(null)}
-                            onSelect={(type) => {
-                                setActiveModal({
-                                    type: 'create',
-                                    data: activeModal.data,
-                                    fixedType: type === 'oneToOne' ? 'oneToOne' : 'mustMeet'
-                                });
-                            }}
-                        />
-                    )
-                }
+                {/* Slot click dropdown */}
+                {slotDropdown && (
+                    <>
+                        <div className="fixed inset-0 z-[100]" onClick={() => setSlotDropdown(null)} />
+                        <div
+                            className="fixed z-[101] bg-white rounded-xl shadow-xl border border-zinc-200 py-1.5 w-52"
+                            style={{ left: slotDropdown.x, top: slotDropdown.y + 4, transform: 'translateX(-50%)' }}
+                        >
+                            <button
+                                onClick={() => {
+                                    const { date, time } = slotDropdown;
+                                    setSlotDropdown(null);
+                                    setActiveModal({ type: 'create', data: { date, time }, fixedType: 'oneToOne' });
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 flex items-center gap-3"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-blue-500" /> Regular Meeting
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const { date, time } = slotDropdown;
+                                    setSlotDropdown(null);
+                                    setActiveModal({ type: 'create', data: { date, time }, fixedType: 'mustMeet' });
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 flex items-center gap-3"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-[#522DA6]" /> MustMeet
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Individual Generate Schedule Modal */}
