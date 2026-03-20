@@ -79,7 +79,7 @@ export default function DashboardShell({ children, navigate }) {
                             <SubNavItem label="Settings & Preferences" />
                             <SubNavItem
                                 label="Scoring & Schedules"
-                                onClick={() => navigate?.('#/')}
+                                onClick={() => navigate?.('#/schedules')}
                             />
                             <SubNavItem
                                 label="Slot Priorities"
@@ -106,7 +106,15 @@ export default function DashboardShell({ children, navigate }) {
                     <NavItem icon={ShellIcons.Target} label="Engage" hasSubmenu />
                     <NavItem icon={ShellIcons.Users} label="Grip Teams" />
                     <NavItem icon={ShellIcons.TrendingUp} label="Insights" />
-                    <NavItem icon={ShellIcons.Settings} label="App settings" hasSubmenu />
+                    <div>
+                        <NavItem icon={ShellIcons.Settings} label="App Settings" hasSubmenu onClick={() => navigate?.('#/app-settings')} />
+                        <div className="py-1">
+                            <SubNavItem
+                                label="App Builder"
+                                onClick={() => navigate?.('#/app-settings')}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
