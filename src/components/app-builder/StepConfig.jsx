@@ -20,7 +20,6 @@ export default function StepConfig({ onNext, onCancel }) {
       if (!state.appleTeamId.trim()) errors.appleTeamId = 'Apple Team ID is required (needed for file uploads)';
       if (!state.appleAuthKeyId.trim()) errors.appleAuthKeyId = 'Apple Auth Key ID is required';
       if (!state.appleIssuerId.trim()) errors.appleIssuerId = 'Apple Issuer ID is required';
-      if (!state.appleKeyName.trim()) errors.appleKeyName = 'Apple Key Name is required';
     }
     if (state.androidDeployEnabled) {
       if (!state.packageId.trim()) errors.packageId = 'Package ID is required for Android';
@@ -174,15 +173,6 @@ export default function StepConfig({ onNext, onCancel }) {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <LockableField
-                  label="Apple Key Name"
-                  value={state.appleKeyName}
-                  onChange={v => setField('appleKeyName', v)}
-                  placeholder="e.g. Distribution Key"
-                  error={state.errors.appleKeyName}
-                  required
-                  tooltip="Source from App Store Connect"
-                />
                 <LockableField
                   label="Apple Auth Key ID"
                   value={state.appleAuthKeyId}
