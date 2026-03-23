@@ -16,6 +16,7 @@ const INITIAL_STATE = {
   appleTeamId: '',
   appleAuthKeyId: '',
   appleIssuerId: '',
+  appleKeyName: '',
   firebaseAppId: '',
   firebaseTestersEmail: '',
   iosDeployEnabled: true,

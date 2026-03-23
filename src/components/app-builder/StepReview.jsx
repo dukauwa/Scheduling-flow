@@ -101,6 +101,7 @@ export default function StepReview({ onBack, onGoToStep, onBuildUpdated, navigat
         appleTeamId: state.appleTeamId,
         appleAuthKeyId: state.appleAuthKeyId,
         appleIssuerId: state.appleIssuerId,
+        appleKeyName: state.appleKeyName,
         firebaseAppId: state.firebaseAppId,
         firebaseTestersEmail: state.firebaseTestersEmail,
         iosDeployEnabled: state.iosDeployEnabled,
@@ -232,6 +233,7 @@ export default function StepReview({ onBack, onGoToStep, onBuildUpdated, navigat
           <ReviewSection title="Apple Configuration" onEdit={() => onGoToStep('config')}>
             <ReviewField label="Bundle ID" value={state.bundleId} locked={state.lockedFields.includes('bundleId')} />
             <ReviewField label="Apple Team ID" value={state.appleTeamId} locked={state.lockedFields.includes('appleTeamId')} />
+            <ReviewField label="Apple Key Name" value={state.appleKeyName} />
             <ReviewField label="Apple Auth Key ID" value={state.appleAuthKeyId} />
             <ReviewField label="Apple Issuer ID" value={state.appleIssuerId} />
             {state.appleStoreConnectId && (
